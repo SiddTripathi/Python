@@ -5,14 +5,14 @@ from flask_smorest import Blueprint, abort
 from models import ItemModel
 from db import db
 from sqlalchemy.exc import SQLAlchemyError
-from schemas import ItemsSchema, ItemUpdateSchema
+from schemas import ItemSchema, ItemUpdateSchema
 
 
 blp = Blueprint("items",__name__,description="Operations on Items")
 
 @blp.route("/item/<string:item_id>")
 class Item(MethodView):
-    @blp.response(200, ItemsSchema)
+    @blp.response(200, ItemSchema)
     def get(self,item_id):
         item = ItemModel.query.get_or_404(item_id) #now its feature of flask alchemy that we can query db through model
                                                    #and the item_id will pull data by primary key and if id not there throw 404 error
@@ -35,7 +35,7 @@ class Item(MethodView):
        except KeyError:
           abort(404,message="Item not found") """
     @blp.arguments(ItemUpdateSchema)
-    @blp.response(200,ItemsSchema)       #order of decoraters matters so request will come before response
+    @blp.response(200,ItemSchema)       #order of decoraters matters so request will come before response
     def put(self,items_data,item_id):
        item = ItemModel.query.get(item_id)
        if item:
@@ -60,11 +60,11 @@ class Item(MethodView):
 
 @blp.route("/item")
 class ItemList(MethodView):
-   @blp.response(200,ItemsSchema(many=True))
+   @blp.response(200,ItemSchema(many=True))
    def get(self):
       return ItemModel.query.all() #{"items": list(items.values())}  --> since now the get returns list itself so no need to convert
-   @blp.arguments(ItemsSchema)
-   @blp.response(200,ItemsSchema)
+   @blp.arguments(ItemSchema)
+   @blp.response(200,ItemSchema)
    def post(self,items_data):     #item_data is the validated json which this method requested
        item = ItemModel(**items_data)
        try:
